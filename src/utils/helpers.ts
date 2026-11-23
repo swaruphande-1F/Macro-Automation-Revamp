@@ -79,3 +79,28 @@ export function daysSince(date: Date, today = new Date()): number {
 export function isFresh(date: Date, frequency: Frequency, limit = maxAgeDays[frequency], today = new Date()): boolean {
   return daysSince(date, today) <= limit;
 }
+
+/** Cumulative Layout Shift of the current document so far (shifts right after user input don't count). */
+export async function measureCls(page: Page): Promise<number> {
+  return page.evaluate(() => new Promise<number>((resolve) => {
+    let cls = 0;
+    new PerformanceObserver((list) => {
+      for (const e of list.getEntries() as (PerformanceEntry & { value: number; hadRecentInput: boolean })[]) {
+        if (!e.hadRecentInput) cls += e.value;
+      }
+    }).observe({ type: 'layout-shift', buffered: true });
+    // Buffered entries are delivered asynchronously; give them a moment.
+    setTimeout(() => resolve(cls), 500);
+  }));
+}
+
+/** Largest Contentful Paint of the current document, in ms from navigation start (0 if none yet). */
+export async function measureLcp(page: Page): Promise<number> {
+  return page.evaluate(() => new Promise<number>((resolve) => {
+    let lcp = 0;
+    new PerformanceObserver((list) => {
+      for (const e of list.getEntries()) lcp = Math.max(lcp, e.startTime);
+    }).observe({ type: 'largest-contentful-paint', buffered: true });
+    setTimeout(() => resolve(Math.round(lcp)), 500);
+  }));
+}

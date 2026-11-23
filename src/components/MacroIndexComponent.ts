@@ -19,7 +19,15 @@ export class MacroIndexComponent {
   /** "Showing: Index Value • Range: 10 Years" — lives in the export copy, kept in sync with the tabs. */
   readonly showingLabel: Locator;
   readonly embedLink: Locator;
+  /** "Learn How to Embed Charts" — the tutorial-video modal opened by the "How to Embed" link. */
   readonly embedModal: Locator;
+  /** Share icon next to "How to Embed this Chart?"; opens the Embed / Share / Copy menu. */
+  readonly shareButton: Locator;
+  /** "Embed Chart" modal opened from share menu → "Embed this chart". Holds the <iframe> code. */
+  readonly embedCodeModal: Locator;
+  readonly embedCode: Locator;
+  readonly embedCopyIcon: Locator;
+  readonly embedCodeClose: Locator;
   readonly lastUpdated: Locator;
 
   constructor(private readonly page: Page) {
@@ -37,7 +45,20 @@ export class MacroIndexComponent {
     this.showingLabel = this.root.getByText(/^Showing:/);
     this.embedLink = this.root.getByText('How to Embed this Chart?', { exact: true });
     this.embedModal = page.locator('div.fixed.inset-0').filter({ hasText: 'Learn How to Embed Charts' });
+    // The share button is the first icon button right after the "How to Embed" link.
+    this.shareButton = this.embedLink.locator('xpath=following-sibling::div[1]//button').first();
+    this.embedCodeModal = page.locator('div.fixed.inset-0').filter({ has: page.getByText('Embed Chart', { exact: true }) });
+    // The code is plain text in a <p> (not a textarea), starting with "<iframe".
+    this.embedCode = this.embedCodeModal.getByText(/<iframe/);
+    this.embedCopyIcon = this.embedCodeModal.locator('svg.lucide-copy');
+    // The × icon sits right after the "Embed Chart" title.
+    this.embedCodeClose = this.embedCodeModal.getByText('Embed Chart', { exact: true }).locator('xpath=following-sibling::*[1]');
     this.lastUpdated = this.root.getByText(/^Last Updated:/).first();
+  }
+
+  /** An item in the share menu: 'Embed this chart', 'Share via..', 'Copy chart as image', 'Copy link to chart'. */
+  shareMenuItem(name: string): Locator {
+    return this.page.getByText(name, { exact: true }).first();
   }
 
   /** A series or range toggle, e.g. 'YoY Growth in GDP' or '5Y'. */

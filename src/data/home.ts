@@ -67,6 +67,8 @@ export const macroIndex = {
   /** Range tab → text shown in the "Showing: … • Range: …" label. */
   ranges: { '1Y': '1 Year', '5Y': '5 Years', '10Y': '10 Years', MAX: 'All' },
   source: 'Source: CMIE Economic Outlook, 1 Finance Research',
+  /** Share menu → "Embed this chart" shows an <iframe> pointing at the site's /graph/ page. */
+  embedCode: /^<iframe\s+src="(https:\/\/indiamacroindicators\.co\.in\/graph\/[^"]+)"[\s\S]*<\/iframe>$/,
 };
 
 export const assetAllocator = {
@@ -90,9 +92,12 @@ export const footer = {
   sections: ['Registered Office', 'Corporate Office', 'India Macro Indicators', 'Other Resources'],
   invalidEmail: 'not-an-email',
   invalidEmailError: 'Invalid email. Please use the format: example@domain.com',
-  testEmail: 'qa.automation.test@example.com',
+  /** Unique per call (timestamped) so the site never rejects it as already subscribed. */
+  testEmail: () => `qa.automation.test+${Date.now()}@example.com`,
   /** Real endpoint — always mocked in tests so prod never gets a test subscriber. */
   subscribeApi: '**/api/newsletter/subscribe',
+  /** Shown only when the API answers 201; cleared by the site after 4s. */
+  subscribeSuccess: 'You have successfully subscribed to our newsletter.',
   appLinks: ['App Store', 'Google Store'],
   appLinkHost: /onelink\.me|play\.google\.com|apps\.apple\.com/,
 };

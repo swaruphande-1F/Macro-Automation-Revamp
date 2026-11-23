@@ -7,6 +7,7 @@ export class FooterComponent {
   readonly emailInput: Locator;
   readonly subscribeButton: Locator;
   readonly emailError: Locator;
+  readonly subscribeMessage: Locator;
   readonly copyright: Locator;
 
   constructor(private readonly page: Page) {
@@ -15,6 +16,8 @@ export class FooterComponent {
     this.emailInput = this.root.getByRole('textbox', { name: 'Enter your email' });
     this.subscribeButton = this.root.locator('form button[type="submit"]');
     this.emailError = this.root.locator('form').getByText(/^Invalid email/);
+    /** Status line under the input after submit (success, already subscribed, or error). */
+    this.subscribeMessage = this.root.locator('form > p.mt-1');
     this.copyright = this.root.getByText(/© Copyright/).locator('xpath=..');
   }
 
